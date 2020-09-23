@@ -4,11 +4,19 @@ const ArticlesService = {
   },
 
   getById(knex, id) {
-    return knex.select('*').from('shopping_list').where('product_id', id);
+    return knex
+      .select('*')
+      .from('shopping_list')
+      .where('product_id', id)
+      .first();
   },
 
   createItem(knex, item) {
-    return knex.insert(item).into('shopping_list');
+    return knex
+      .insert(item)
+      .into('shopping_list')
+      .returning('*')
+      .then((rows) => rows[rows.length - 1]);
   },
 
   updateItem(knex, id, newRow) {
