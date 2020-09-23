@@ -4,7 +4,7 @@ const ArticlesService = {
   },
 
   getById(knex, id) {
-    return knex.select('*').from('shopping_list').where('id', id);
+    return knex.select('*').from('shopping_list').where('product_id', id);
   },
 
   createItem(knex, item) {
@@ -12,15 +12,13 @@ const ArticlesService = {
   },
 
   updateItem(knex, id, newRow) {
-    return knex
-      .select('*')
-      .from('shopping_list')
-      .where('id', id)
+    return knex('shopping_list')
+      .where('product_id', id)
       .update(newRow);
   },
 
   deleteById(knex, id) {
-    return knex.select('*').from('shopping_list').where('id', id).delete();
+    return knex.select('*').from('shopping_list').where('product_id', id).delete();
   }
 };
 

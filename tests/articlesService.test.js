@@ -3,34 +3,34 @@ const { expect } = require('chai');
 const knex = require('knex');
 
 const ArticlesService = require('./articlesService');
+const { getById } = require('./articlesService');
 
 describe('Articles Service', () => {
   let db;
 
   let testItems = [
     {
-      id: 1,
+    
       name: 'First test item!',
       date_added: new Date('2029-01-22T16:28:32.615Z'),
       price: '12.00',
       category: 'Main'
+
     },
     {
-      id: 2,
+    
       name: 'Second test item!',
       date_added: new Date('2100-05-22T16:28:32.615Z'),
       price: '21.00',
       category: 'Snack'
     },
     {
-      id: 3,
       name: 'Third test item!',
       date_added: new Date('1919-12-22T16:28:32.615Z'),
       price: '3.00',
       category: 'Lunch'
     },
     {
-      id: 4,
       name: 'Third test item!',
       date_added: new Date('1919-12-22T16:28:32.615Z'),
       price: '0.99',
@@ -38,43 +38,73 @@ describe('Articles Service', () => {
     }
   ];
 
-  before('setup db', () => {
+  before(() => {
     db = knex({
       client: 'pg',
       connection: process.env.DB_URL
     });
   });
 
-  before('empty table', () => db('shopping_list').truncate());
+  before(() => db('shopping_list').truncate());
 
-  afterEach('empty table', () => db('shopping_list').truncate());
+  afterEach(() => db('shopping_list').truncate());
 
-  after('destroy connection', () => db.destroy());
+  after(() => db.destroy());
 
   context('when data populated', () => {
     beforeEach(() => {
-      return db.insert(testItems).into('shopping_list');
+      return db.into('shopping_list').insert(testItems);
     });
-  });
 
-  it('getAllItems() does a thing', () => {
-    const expectedResults = testItems.map((item) => ({
-      ...item,
-      checked: false
+
+  it.skip('getAllItems() does a thing', () => {
+    const expectedResults = testItems.map((item, index) => ({
+      ...item, 
+      checked: false,
+      product_id: index +1
     }));
-    return db
-      .select('*')
-      .from('shopping_list')
+    return ArticlesService.getAllItems(db)
       .then(data => {
         expect(data).to.eql(expectedResults)
       })
   });
 
-  it.skip('getById() does a thing', () => {});
+  it('getById() does a thing', () => {
+    const searchId = 3
+    const expectedResults= [testItems[searchId-1]]
+    expectedResults[0].product_id=searchId
+    expectedResults[0].checked=false
+    return ArticlesService.getById(db, searchId)
+      .then(data=>{
+        expect(data).to.eql(expectedResults)
+      })
 
-  it.skip('createItem() does a thing', () => {});
+  });
 
-  it.skip('updateItem() does a thing', () => {});
+  it.skip('createItem() does a thing', () => {
+
+  });
+
+  it('updateItem() does a thing', () => {
+    const updateId=3
+    const newItem=
+    {
+      name: 'test update item!',
+      price: '0.98',
+      date_added: new Date(),
+      checked: true,
+      category: 'Lunch',
+    }
+    const expectedResults=[{...newItem, product_id: updateId}]
+    return ArticlesService.updateItem(db, updateId, newItem)
+      .then(()=>ArticlesService.getById(db, updateId))
+      .then(data=>{
+        expect(data).to.eql(expectedResults)
+      })
+  });
+  
 
   it.skip('deleteById() does a thing', () => {});
+});
+
 });
