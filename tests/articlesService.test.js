@@ -1,3 +1,5 @@
+require('dotenv').config();
+const { expect } = require('chai');
 const knex = require('knex');
 
 const ArticlesService = require('./articlesService');
@@ -33,29 +35,46 @@ describe('Articles Service', () => {
       date_added: new Date('1919-12-22T16:28:32.615Z'),
       price: '0.99',
       category: 'Breakfast'
-    },
+    }
   ];
 
   before('setup db', () => {
     db = knex({
       client: 'pg',
-      connection: process.env.TEST_DB_URL
+      connection: process.env.DB_URL
     });
   });
 
-  before('empty table', () => db('').truncate());
+  before('empty table', () => db('shopping_list').truncate());
 
-  afterEach('empty table', () => db('').truncate());
+  afterEach('empty table', () => db('shopping_list').truncate());
 
   after('destroy connection', () => db.destroy());
 
-  describe('getAllArticles', () => {
-    context('when data populated', () => {
-      beforeEach('insert test articles', () => {});
+  context('when data populated', () => {
+    beforeEach(() => {
+      return db.insert(testItems).into('shopping_list');
     });
-
-    it('happyPath', () => {});
-
-    it('happyPath', () => {});
   });
+
+  it('getAllItems() does a thing', () => {
+    const expectedResults = testItems.map((item) => ({
+      ...item,
+      checked: false
+    }));
+    return db
+      .select('*')
+      .from('shopping_list')
+      .then(data => {
+        expect(data).to.eql(expectedResults)
+      })
+  });
+
+  it.skip('getById() does a thing', () => {});
+
+  it.skip('createItem() does a thing', () => {});
+
+  it.skip('updateItem() does a thing', () => {});
+
+  it.skip('deleteById() does a thing', () => {});
 });

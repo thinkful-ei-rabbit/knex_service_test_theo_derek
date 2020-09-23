@@ -1,6 +1,6 @@
 const app = require('../src/api/app')
 
-describe('App', () => {
+describe.skip('App', () => {
   it('GET / responds with 200 containing "Express boilerplate initialized!"', () => {
     return supertest(app)
       .get('/')
